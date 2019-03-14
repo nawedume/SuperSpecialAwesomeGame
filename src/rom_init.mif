@@ -1,0 +1,10 @@
+DEPTH = 4092; 
+WIDTH = 8;
+ADDRESS_RADIX = HEX;
+DATA_RADIX = HEX;
+
+CONTENT BEGIN
+	[0..F]: 3F; 	// Every Address From 0 to F = 3F 
+	6 : E; 			// Address 6 = 0E
+	C : 2 5 8; 		// Address C = 2, Address D = 5, Address E = 8
+END;
