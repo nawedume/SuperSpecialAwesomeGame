@@ -9,13 +9,16 @@ module tiledrawer(
 	output reg vga_draw_enable,
 	output reg [7:0] vga_x_out,
 	output reg [7:0] vga_y_out,
+	output reg [7:0] vga_R_out,
+	output reg [7:0] vga_G_out,
+	output reg [7:0] vga_B_out,
 	output reg active
 	);
 
 	// init regs used for internal calcs 
 	reg [7:0] x_in, y_in, x_out_buffer, y_out_buffer;
 	reg [2:0] current_x, current_y;
-	reg [7:0] R_buffer, G_buffer, B_buffer;
+	reg [7:0] R_out_buffer, G_out_buffer, B_out_buffer;
 	reg [7:0] tile_address;
 	reg load_R, load_G, load_B;
 	reg row_finished, draw_pixel;
@@ -30,6 +33,7 @@ module tiledrawer(
 				S_CHECK_FINISHED_TILE   = 8'd6;
 
 	// state table for FSM of tiledrawer
+	always @(*)
 	begin: state_table 
 			case (current_state)
 				S_INCATIVE: next_state = draw ? S_LOAD_INIT_VALUES : S_INACTIVE; // check ? load if true : load if false
@@ -42,6 +46,7 @@ module tiledrawer(
 			default: next_state = S_INACTIVE;
 		endcase
 	end 
+
 	
 	// control path
 	always @(*)
@@ -107,24 +112,27 @@ module tiledrawer(
 				load_B = 1'b0;
 				end
 		endcase
-	end // enable_signals
+	end
 
 
 	always@(posedge clk) 
 	begin: datapath
 
 		if(load_R)
-			R_buffer <= rom_request_data;
+			R_out_buffer <= rom_request_data;
 		if(load_G)
-			G_buffer <= rom_request_data;
+			G_out_buffer <= rom_request_data;
 		if(load_B)
-			B_buffer <= rom_request_data;
+			B_out_buffer <= rom_request_data;
 
 		// check if a pixel is being drawn this cycle
 		if(draw_pixel = 1'b1;) begin
 			// if so, load the buffer values and update the pixel address to the next one
 			vga_x_out <= x_out_buffer;
 			vga_y_out <= y_out_buffer;
+			vga_R_out <= R_out_buffer;
+			vga_G_out <= G_out_buffer;
+			vga_B_out <= B_out_buffer;
 			tile_address <= tile_address + 2'b11;
 			vga_draw_enable <= 1'b1;
 		else begin
