@@ -9,18 +9,18 @@ module test_move(
     wire [7:0] scan_out;
     wire [2:0] move_out;
 	
-	// Rate divider that measures 1/60th of a second,
-	// controls frame counter
-	
-	wire [19:0] frame_counter;
-	wire frame_reset;
-	
-	RateDivider framedivider(
-		.clk(CLOOCK_50),
-		.counter(frame_counter)
-	);
-	
-	assign frame_reset = frame_counter == 20'b0;
+    // Rate divider that measures 1/60th of a second,
+    // controls frame counter
+
+    wire [19:0] frame_counter;
+    wire frame_reset;
+
+    RateDivider framedivider(
+        .clk(CLOOCK_50),
+        .counter(frame_counter)
+    );
+
+    assign frame_reset = frame_counter == 20'b0;
 
     // instantiate ps2 receiver
     ps2_rx ps2_rx_unit (
