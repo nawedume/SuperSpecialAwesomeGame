@@ -1,6 +1,6 @@
 module RateDivider_60frames(
-	input clk;
-	output reg [20:0] counter;
+	input clk,
+	output reg [20:0] counter
 );
 
 
