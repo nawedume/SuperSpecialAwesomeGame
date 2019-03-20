@@ -4,6 +4,31 @@ ADDRESS_RADIX = HEX;
 DATA_RADIX = HEX;
 
 CONTENT BEGIN
+	[000..005] : 00; 	// pixel 1-2 
+
+	006 : 00;
+	007 : E7;
+	008 : 86;			// pixel 3
+
+	009 : 00;
+	00A : E7;
+	00B : 86;			// pixel 4
+
+	00C : FF;
+	00D : FF;
+	00E : 27;			// pixel 5
+
+	00F : FF;
+	010 : FF;
+	011 : 27;			// pixel 6
+
+	012 : FF;
+	013 : A3;
+	014 : 00;			// pixel 7
+
+	[015..017] : 00; 	// pixel 8
+
+	// example formating
 	[0..F]: 3F; 	// Every Address From 0 to F = 3F 
 	6 : E; 			// Address 6 = 0E
 	C : 2 5 8; 		// Address C = 2, Address D = 5, Address E = 8
