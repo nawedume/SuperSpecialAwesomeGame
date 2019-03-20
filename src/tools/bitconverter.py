@@ -1,7 +1,7 @@
 from scipy import misc
 import sys
 
-def convert(image_array):
+def convert(images):
     counter = 0
 
     print('''DEPTH = 4092; 
@@ -12,18 +12,22 @@ DATA_RADIX = HEX;
 CONTENT BEGIN
     ''')
 
-    for row in image_array:
-        for pixel in row:
-            for color in pixel:
-                print("     %03x : %02x".upper() % (counter, color))
-                counter += 1
+    for image_array in images:
+        for row in image_array:
+            for pixel in row:
+                for color in pixel:
+                    print("     %03x : %02x".upper() % (counter, color))
+                    counter += 1
 
     print('''END;''')
 
 if __name__ == '__main__':
-    if (len(sys.argv) != 2):
+    if (len(sys.argv) < 2):
         sys.stderr.write("usage: %s image" % sys.argv[0])
         exit(1)
     
-    image_array = misc.imread(sys.argv[1], mode='RGB')
-    convert(image_array)
+    images = []
+    for filename in sys.argv[1:]:
+        images.append(misc.imread(filename, mode='RGB'))
+   
+    convert(images)
