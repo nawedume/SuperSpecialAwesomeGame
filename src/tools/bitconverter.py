@@ -15,7 +15,7 @@ CONTENT BEGIN
     for row in image_array:
         for pixel in row:
             for color in pixel:
-                print("     %03x : %02x" % (counter, color))
+                print("     %03x : %02x".upper() % (counter, color))
                 counter += 1
 
     print('''END;''')
