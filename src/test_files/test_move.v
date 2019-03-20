@@ -15,8 +15,8 @@ module test_move(
     wire [19:0] frame_counter;
     wire frame_reset;
 
-    RateDivider framedivider(
-        .clk(CLOOCK_50),
+    RateDivider_60frames framedivider(
+        .clk(CLOCK_50),
         .counter(frame_counter)
     );
 
