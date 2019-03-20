@@ -9,9 +9,7 @@ module tiledrawer(
 	output reg vga_draw_enable,
 	output reg [7:0] vga_x_out,
 	output reg [7:0] vga_y_out,
-	output reg [7:0] vga_R_out,
-	output reg [7:0] vga_G_out,
-	output reg [7:0] vga_B_out,
+	output reg [23:0] vga_RGB_out,
 	output reg active
 	);
 
@@ -130,9 +128,7 @@ module tiledrawer(
 			// if so, load the buffer values and update the pixel address to the next one
 			vga_x_out <= x_out_buffer;
 			vga_y_out <= y_out_buffer;
-			vga_R_out <= R_out_buffer;
-			vga_G_out <= G_out_buffer;
-			vga_B_out <= B_out_buffer;
+			vga_RGB_out <= {R_out_buffer, G_out_buffer, B_out_buffer};
 			tile_address <= tile_address + 2'b11;
 			vga_draw_enable <= 1'b1;
 		else begin
