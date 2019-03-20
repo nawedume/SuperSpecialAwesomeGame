@@ -4,13 +4,12 @@ import sys
 def convert(image_array):
     counter = 0
 
-    print('''
-    DEPTH = 4092; 
-    WIDTH = 8;
-    ADDRESS_RADIX = HEX;
-    DATA_RADIX = HEX;
+    print('''DEPTH = 4092; 
+WIDTH = 8;
+ADDRESS_RADIX = HEX;
+DATA_RADIX = HEX;
 
-    CONTENT BEGIN
+CONTENT BEGIN
     ''')
 
     for row in image_array:
