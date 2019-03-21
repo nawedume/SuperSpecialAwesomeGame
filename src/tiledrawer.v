@@ -19,7 +19,7 @@ module tiledrawer(
 	reg [7:0] R_out_buffer, G_out_buffer, B_out_buffer;
 	reg [7:0] tile_address;
 	reg load_R, load_G, load_B;
-	reg row_finished, draw_pixel;
+	reg row_finished, draw_pixel, reset_xy_load_tile_address;
 	reg [7:0] current_state, next_state;
 
 	// params for ease of reading
@@ -56,14 +56,13 @@ module tiledrawer(
 		load_B = 1'b0;
 		row_finished = 1'b0;
 		draw_pixel = 1'b0;
+		reset_xy_load_tile_address = 1'b0;
 		case (current_state)
 			// at start of every tile, load the relative x/y and tile address, then reset the internal counters
 			S_LOAD_INIT_VALUES: begin
 				x_in = x_pos_volitile;
 				y_in = y_pos_volitile;
-				current_x = 3'b000;
-				current_y = 3'b000;
-				tile_address = tile_address_volitile;
+				reset_xy_load_tile_address = 1'b1;
 			end
 
 			// then request the RGB in 3 cycles to stay in pace with ROM
@@ -102,8 +101,7 @@ module tiledrawer(
 			default: begin
 				x_out_buffer = 7'b0;
 				y_out_buffer = 7'b0;
-				current_x = 3'b000;
-				current_y = 3'b000;
+				reset_xy = 1'b0;
 				//active_buffer = 1'b0;
 				row_finished = 1'b0;
 				load_R = 1'b0;
@@ -123,6 +121,12 @@ module tiledrawer(
 			G_out_buffer <= rom_request_data;
 		if(load_B)
 			B_out_buffer <= rom_request_data;
+
+		if(reset_xy_load_tile_address) begin
+			current_x <= 3'b000;
+			current_y <= 3'b000;
+			tile_address <= tile_address_volitile;
+		end
 
 		// check if a pixel is being drawn this cycle
 		if(draw_pixel == 1'b1) begin
@@ -145,9 +149,8 @@ module tiledrawer(
 		end
 		else begin
 			// otherwise reset the x, inc the y, and reset the row
-			current_x = 3'b000;
-			current_y = current_y + 1'b1;
-			row_finished <= 1'b0;
+			current_x <= 3'b000;
+			current_y <= current_y + 1'b1;
 		end
 		
 		// move to next state after all logic
