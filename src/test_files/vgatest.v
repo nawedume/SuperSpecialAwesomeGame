@@ -14,13 +14,15 @@ module vgatest
 		VGA_SYNC_N,						//	VGA SYNC
 		VGA_R,   						//	VGA Red[9:0]
 		VGA_G,	 						//	VGA Green[9:0]
-		VGA_B   						//	VGA Blue[9:0]
+		VGA_B,   						//	VGA Blue[9:0]
+		LEDR,
 	);
 
 	input			CLOCK_50;				//	50 MHz
 	input   [9:0]   SW;
 	input   [3:0]   KEY;
-
+	output [15:0] LEDR;
+	assign LEDR[15] = writeEn;
 	// Declare your inputs and outputs here
 	// Do not change the following outputs
 	output			VGA_CLK;   				//	VGA Clock
@@ -33,7 +35,7 @@ module vgatest
 	output	[9:0]	VGA_B;   				//	VGA Blue[9:0]
 	
 	wire resetn;
-	assign resetn = KEY[0];
+	assign resetn = KEY[2];
 	
 	// Create the colour, x, y and writeEn wires that are inputs to the controller.
 	wire [23:0] colour;
@@ -72,17 +74,18 @@ module vgatest
 	wire [7:0] rom_data;
 	wire active;
 
-	rom rom4096x8(
+	rom myrom(
 		.address(rom_address),
 		.clock(CLOCK_50),
 		.q(rom_data)
 	);
 
+
 	tiledrawer gpu(
 		.clk(CLOCK_50),
 		.tile_address_volitile(12'b000000000000),
-		.x_pos_volitile(8'b0000000),
-		.y_pos_volitile(8'b0000000),
+		.x_pos_volitile(8'b0110000),
+		.y_pos_volitile(8'b0110000),
 		.rom_request_data(rom_data),
 		.rom_request_address(rom_address),
 		.vga_draw_enable(writeEn),
@@ -90,7 +93,9 @@ module vgatest
 		.vga_y_out(y),
 		.vga_RGB_out(colour),
 		.active(active),
-		.draw(KEY[1]));
+		.draw(~KEY[1]),
+		.testout(LEDR[7:0])
+		);
     
     // Instansiate datapath
 	// datapath d0(...);
@@ -98,4 +103,34 @@ module vgatest
     // Instansiate FSM control
     // control c0(...);
     
+endmodule
+
+module hex_decoder(bin, hex);
+    input [3:0] bin;
+	output reg [6:0] hex;
+	 
+	 always @(*)
+	 begin
+		case(bin[3:0])
+			4'b0000: hex = 7'b1000000;
+			4'b0001: hex = 7'b1111001;
+			4'b0010: hex = 7'b0100100;
+			4'b0011: hex = 7'b0110000;
+			4'b0100: hex = 7'b0011001;
+			4'b0101: hex = 7'b0010010;
+			4'b0110: hex = 7'b0000010;
+			4'b0111: hex = 7'b1111000;
+			4'b1000: hex = 7'b0000000;
+			4'b1001: hex = 7'b0011000;
+			4'b1010: hex = 7'b0001000;
+			4'b1011: hex = 7'b0000011;
+			4'b1100: hex = 7'b1000110;
+			4'b1101: hex = 7'b0100001;
+			4'b1110: hex = 7'b0000110;
+			4'b1111: hex = 7'b0001110;
+			
+			default: hex = 7'b0111111;
+		endcase
+
+	end
 endmodule
