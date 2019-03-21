@@ -20,6 +20,7 @@ module tiledrawer(
 	reg [7:0] tile_address;
 	reg load_R, load_G, load_B;
 	reg row_finished, draw_pixel;
+	reg [7:0] current_state, next_state;
 
 	// params for ease of reading
 	localparam  S_INACTIVE 				= 8'd0,
@@ -27,14 +28,14 @@ module tiledrawer(
 				S_REQUEST_R				= 8'd2,
 				S_REQUEST_G				= 8'd3,
 				S_REQUEST_B 			= 8'd4,
-				S_DRAW       			= 8'd5;
+				S_DRAW       			= 8'd5,
 				S_CHECK_FINISHED_TILE   = 8'd6;
 
 	// state table for FSM of tiledrawer
 	always @(*)
 	begin: state_table 
 			case (current_state)
-				S_INCATIVE: next_state = draw ? S_LOAD_INIT_VALUES : S_INACTIVE; // check ? load if true : load if false
+				S_INACTIVE: next_state = draw ? S_LOAD_INIT_VALUES : S_INACTIVE; // check ? load if true : load if false
 				S_LOAD_INIT_VALUES: next_state = S_REQUEST_R;
 				S_REQUEST_R: next_state = S_REQUEST_G;
 				S_REQUEST_G: next_state = S_REQUEST_B;
@@ -45,7 +46,7 @@ module tiledrawer(
 		endcase
 	end 
 
-	
+
 	// control path
 	always @(*)
 	begin: control
@@ -60,8 +61,8 @@ module tiledrawer(
 			S_LOAD_INIT_VALUES: begin
 				x_in = x_pos_volitile;
 				y_in = y_pos_volitile;
-				x_progress = 3'b000;
-				y_progress = 3'b000;
+				current_x = 3'b000;
+				current_y = 3'b000;
 				tile_address = tile_address_volitile;
 			end
 
@@ -77,7 +78,7 @@ module tiledrawer(
 			end
 
 			S_REQUEST_B: begin
-				rom_accces_address = tile_address + 2'b10;
+				rom_request_address = tile_address + 2'b10;
 				load_B = 1'b1;
 			end
 
@@ -99,11 +100,11 @@ module tiledrawer(
 			end
 
 			default: begin
-				x_buffer = 7'b0;
-				y_buffer = 7'b0;
-				x_progress = 2'b0;
-				y_progress = 2'b0;
-				active_buffer = 1'b0;
+				x_out_buffer = 7'b0;
+				y_out_buffer = 7'b0;
+				current_x = 3'b000;
+				current_y = 3'b000;
+				//active_buffer = 1'b0;
 				row_finished = 1'b0;
 				load_R = 1'b0;
 				load_G = 1'b0;
@@ -124,13 +125,14 @@ module tiledrawer(
 			B_out_buffer <= rom_request_data;
 
 		// check if a pixel is being drawn this cycle
-		if(draw_pixel = 1'b1;) begin
+		if(draw_pixel == 1'b1) begin
 			// if so, load the buffer values and update the pixel address to the next one
 			vga_x_out <= x_out_buffer;
 			vga_y_out <= y_out_buffer;
 			vga_RGB_out <= {R_out_buffer, G_out_buffer, B_out_buffer};
 			tile_address <= tile_address + 2'b11;
 			vga_draw_enable <= 1'b1;
+		end
 		else begin
 			// if not, disable the vga draw output
 			vga_draw_enable <= 1'b0;
@@ -140,6 +142,7 @@ module tiledrawer(
 		if(row_finished == 1'b0) begin
 			// if so, inc the x
 			current_x = current_x + 1'b1;
+		end
 		else begin
 			// otherwise reset the x, inc the y, and reset the row
 			current_x = 3'b000;

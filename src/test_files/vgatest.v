@@ -72,13 +72,13 @@ module vgatest
 	wire [7:0] rom_data;
 	wire active;
 
-	rom	rom_inst(
+	rom rom4096x8(
 		.address(rom_address),
 		.clock(CLOCK_50),
 		.q(rom_data)
 	);
 
-	gpu tiledrawer(
+	tiledrawer gpu(
 		.clk(CLOCK_50),
 		.tile_address_volitile(12'b000000000000),
 		.x_pos_volitile(8'b0000000),
