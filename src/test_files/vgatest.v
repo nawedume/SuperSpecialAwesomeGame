@@ -16,12 +16,24 @@ module vgatest
 		VGA_G,	 						//	VGA Green[9:0]
 		VGA_B,   						//	VGA Blue[9:0]
 		LEDR,
+		HEX0,
+		HEX1,
+		HEX2,
+		HEX3,
+		HEX4,
+		HEX5
 	);
 
 	input			CLOCK_50;				//	50 MHz
 	input   [9:0]   SW;
 	input   [3:0]   KEY;
 	output [15:0] LEDR;
+	output [6:0] HEX0;
+	output [6:0] HEX1;
+	output [6:0] HEX2;
+	output [6:0] HEX3;
+	output [6:0] HEX4;
+	output [6:0] HEX5;
 	assign LEDR[15] = writeEn;
 	// Declare your inputs and outputs here
 	// Do not change the following outputs
@@ -35,7 +47,7 @@ module vgatest
 	output	[9:0]	VGA_B;   				//	VGA Blue[9:0]
 	
 	wire resetn;
-	assign resetn = KEY[2];
+	assign resetn = KEY[0];
 	
 	// Create the colour, x, y and writeEn wires that are inputs to the controller.
 	wire [23:0] colour;
@@ -83,7 +95,7 @@ module vgatest
 	wire [19:0] frame_counter;
     wire frame_reset;
 
-    RateDivider_60frames framedivider(
+    RateDivider_60frames frc(
         .clk(CLOCK_50),
         .counter(frame_counter)
     );
@@ -91,23 +103,23 @@ module vgatest
     assign frame_reset = frame_counter == 20'b0;
 
 	tiledrawer gpu(
-		.clk(CLOCK_50),
+		.clk(~KEY[2]),
 		.tile_address_volitile(12'b000000000000),
 		.x_pos_volitile(SW[7:0]),
 		.y_pos_volitile(8'b0110000),
 		.rom_request_data(rom_data),
 		.rom_request_address(rom_address),
-		.vga_draw_enable(writeEn),
-		.vga_x_out(x),
-		.vga_y_out(y),
-		.vga_RGB_out(colour),
+		.vga_draw_enable_bus(writeEn),
+		.vga_x_out_bus(x),
+		.vga_y_out_bus(y),
+		.vga_RGB_out_bus(colour),
 		.draw(drawtile),
 		.testout(LEDR[7:0])
 		);
 
 	screen_refresh blackscreen(
 		.clk(CLOCK_50),
-		.enable(frame_reset),
+		.enable(~KEY[1]),
 		.vga_x_out_bus(x),
 		.vga_y_out_bus(y),
 		.vga_RGB_out_bus(colour),
@@ -115,6 +127,35 @@ module vgatest
 		.done(drawtile)
 		);
     
+	hex_decoder hex5(
+		.bin(colour[23:20]),
+		.hex(HEX5)
+	);
+
+	hex_decoder hex4(
+		.bin(colour[19:16]),
+		.hex(HEX4)
+	);
+
+	hex_decoder hex3(
+		.bin(colour[15:12]),
+		.hex(HEX3)
+	);
+
+	hex_decoder hex2(
+		.bin(colour[11:8]),
+		.hex(HEX2)
+	);
+
+	hex_decoder hex1(
+		.bin(colour[7:4]),
+		.hex(HEX1)
+	);
+
+	hex_decoder hex0(
+		.bin(colour[3:0]),
+		.hex(HEX0)
+	);
     // Instansiate datapath
 	// datapath d0(...);
 
