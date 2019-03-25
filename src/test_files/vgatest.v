@@ -80,6 +80,15 @@ module vgatest
 		.q(rom_data)
 	);
 
+	wire [19:0] frame_counter;
+    wire frame_reset;
+
+    RateDivider_60frames framedivider(
+        .clk(CLOCK_50),
+        .counter(frame_counter)
+    );
+
+    assign frame_reset = frame_counter == 20'b0;
 
 	tiledrawer gpu(
 		.clk(CLOCK_50),
@@ -98,7 +107,7 @@ module vgatest
 
 	screen_refresh blackscreen(
 		.clk(CLOCK_50),
-		.enable(~KEY[1]),
+		.enable(frame_reset),
 		.vga_x_out_bus(x),
 		.vga_y_out_bus(y),
 		.vga_RGB_out_bus(colour),
