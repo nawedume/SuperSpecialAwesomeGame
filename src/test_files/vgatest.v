@@ -41,7 +41,7 @@ module vgatest
 	wire [23:0] colour;
 	wire [7:0] x;
 	wire [6:0] y;
-	wire writeEn;
+	tri0 writeEn;
 
 	// Create an Instance of a VGA controller - there can be only one!
 	// Define the number of colours as well as the initial background
@@ -72,9 +72,9 @@ module vgatest
 
 	wire [11:0] rom_address;
 	wire [7:0] rom_data;
-	wire active;
+	wire drawtile;
 
-	rom myrom(
+	rom4096x8 myrom(
 		.address(rom_address),
 		.clock(CLOCK_50),
 		.q(rom_data)
@@ -92,9 +92,18 @@ module vgatest
 		.vga_x_out(x),
 		.vga_y_out(y),
 		.vga_RGB_out(colour),
-		.active(active),
-		.draw(~KEY[1]),
+		.draw(drawtile),
 		.testout(LEDR[7:0])
+		);
+
+	screen_refresh blackscreen(
+		.clk(CLOCK_50),
+		.enable(~KEY[1]),
+		.vga_x_out_bus(x),
+		.vga_y_out_bus(y),
+		.vga_RGB_out_bus(colour),
+		.vga_draw_enable_bus(writeEn),
+		.done(drawtile)
 		);
     
     // Instansiate datapath
