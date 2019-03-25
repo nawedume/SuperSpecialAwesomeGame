@@ -84,7 +84,7 @@ module vgatest
 	tiledrawer gpu(
 		.clk(CLOCK_50),
 		.tile_address_volitile(12'b000000000000),
-		.x_pos_volitile(8'b0110000),
+		.x_pos_volitile(SW[7:0]),
 		.y_pos_volitile(8'b0110000),
 		.rom_request_data(rom_data),
 		.rom_request_address(rom_address),
