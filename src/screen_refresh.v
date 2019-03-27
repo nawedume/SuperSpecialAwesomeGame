@@ -26,13 +26,14 @@ module screen_refresh(
 	assign vga_draw_enable_bus = active ? vga_draw_enable : 1'bz;
 
 	localparam  S_INACTIVE 				= 8'd0,
-				S_DRAW       			= 8'd8;
+				S_DRAW       			= 8'd8,
+				S_DONE					= 8'd9;
 
 	// state table for FSM of tiledrawer
 	always @(*)
 	begin: state_table 
 			case (current_state)
-				S_INACTIVE: next_state = draw ? S_DRAW : S_INACTIVE; // check ? load if true : load if false
+				S_INACTIVE: next_state = enable ? S_DRAW : S_INACTIVE; // check ? load if true : load if false
 				S_DRAW: next_state = active ? S_DRAW : S_DONE;
 				S_DONE: next_state = S_INACTIVE;
 			default: next_state = S_INACTIVE;
@@ -62,8 +63,10 @@ module screen_refresh(
 				done = 1'b1;
 			end
 			default:
+			begin
 				active = 1'b0;
 				done = 1'b0;
+			end
 		endcase
 	end
 
