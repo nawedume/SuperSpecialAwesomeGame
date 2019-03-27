@@ -113,7 +113,7 @@ module vgatest
 		.vga_x_out_bus(x),
 		.vga_y_out_bus(y),
 		.vga_RGB_out_bus(colour),
-		.draw(drawtile),
+		.draw(~KEY[3]),
 		.testout(LEDR[7:0])
 		);
 

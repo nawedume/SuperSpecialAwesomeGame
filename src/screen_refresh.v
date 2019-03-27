@@ -61,11 +61,14 @@ module screen_refresh(
 
 			S_DONE: begin
 				done = 1'b1;
+				draw_pixel = 1'b0;
+				active = 1'b0;
 			end
 			default:
 			begin
 				active = 1'b0;
 				done = 1'b0;
+				draw_pixel = 1'b0;
 			end
 		endcase
 	end

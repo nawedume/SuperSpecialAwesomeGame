@@ -10,8 +10,8 @@ module tiledrawer(
 	output [7:0] vga_x_out_bus,
 	output [7:0] vga_y_out_bus,
 	output [23:0] vga_RGB_out_bus,
-	output [7:0] testout
-	output reg active;
+	output [7:0] testout,
+	output reg active
 	);
 	assign testout = current_state;
 	// init regs used for internal calcs 
@@ -44,7 +44,7 @@ module tiledrawer(
 				S_SAVE_G				= 8'd6,
 				S_SAVE_B				= 8'd7,
 				S_DRAW					= 8'd8,
-				S_CHECK_FINISHED_TILE   = 8'd9;
+				S_CHECK_FINISHED_TILE   = 8'd9,
 				S_POSTSAVE_R			= 8'd10,
 				S_POSTSAVE_G			= 8'd11,
 				S_POSTSAVE_B			= 8'd12;

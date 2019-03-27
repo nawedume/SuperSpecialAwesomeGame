@@ -13,7 +13,7 @@ module supermain(
     output VGA_R,   						//	VGA Red[9:0]
     output VGA_G,	 						//	VGA Green[9:0]
     output VGA_B,   						//	VGA Blue[9:0]
-    output [4:0] LEDR
+    output [16:0] LEDR
 );
     wire [19:0] frame_counter;
     RateDivider_60frames framedivider(
@@ -115,5 +115,35 @@ module supermain(
 	);
 
 
+    wire drawtile;
+    wire [7:0] x_val;
+    wire [7:0] y_val;
+
+    wire active;
+    screen_drawer screend(
+        .clk(CLOCK_50),
+        .draw(drawtile),
+        .player_x_pos_volitile(player_x_pos),
+        .player_y_pos_volitile(player_y_pos),
+        .map_address_volitile(12'b001000000000),
+        .rom_request_data(rom_data),
+        .rom_request_address(rom_address),
+        .vga_draw_enable_bus(writeEn),
+		.vga_x_out_bus(x_val),
+		.vga_y_out_bus(y_val),
+		.vga_RGB_out_bus(colour),
+		.draw(drawtile),
+	    .active(active);
+    );
+
+    screen_refresh blackscreen(
+        .clk(CLOCK_50),
+        .enable(~KEY[1]),
+        .vga_x_out_bus(x),
+        .vga_y_out_bus(y),
+        .vga_RGB_out_bus(colour),
+        .vga_draw_enable_bus(writeEn),
+        .done(drawtile)
+    );
 
 endmodule
