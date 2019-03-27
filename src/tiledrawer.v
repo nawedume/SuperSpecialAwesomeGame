@@ -11,6 +11,7 @@ module tiledrawer(
 	output reg [7:0] vga_y_out_bus,
 	output reg [23:0] vga_RGB_out_bus,
 	output [7:0] testout
+	output reg active;
 	);
 	assign testout = current_state;
 	// init regs used for internal calcs 
@@ -22,7 +23,6 @@ module tiledrawer(
 	reg draw_pixel, reset_xy_load_tile_address;
 	reg [7:0] current_state, next_state;
 	reg [11:0] rom_request_address_buffer;
-	reg active;
 
 	assign vga_x_out_bus = active ? vga_x_out : 8'bzzzzzzzz;
 	assign vga_y_out_bus = active ? vga_y_out : 8'bzzzzzzzz;
@@ -38,7 +38,7 @@ module tiledrawer(
 				S_SAVE_R				= 8'd5,
 				S_SAVE_G				= 8'd6,
 				S_SAVE_B				= 8'd7,
-				S_DRAW       			= 8'd8,
+				S_DRAW					= 8'd8,
 				S_CHECK_FINISHED_TILE   = 8'd9;
 
 	// state table for FSM of tiledrawer
