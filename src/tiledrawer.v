@@ -1,12 +1,12 @@
 module tiledrawer(
 	input clk,
-	input [7:0] tile_address_volitile,
+	input [11:0] tile_address_volitile,
 	input [7:0] x_pos_volitile,
 	input [7:0] y_pos_volitile,
 	input draw,
 	input [7:0] rom_request_data,
 	output reg [11:0] rom_request_address,
-	output  vga_draw_enable_bus,
+	output vga_draw_enable_bus,
 	output [7:0] vga_x_out_bus,
 	output [7:0] vga_y_out_bus,
 	output [23:0] vga_RGB_out_bus,
@@ -18,7 +18,7 @@ module tiledrawer(
 	reg [7:0] x_in, y_in, x_out_buffer, y_out_buffer;
 	reg [6:0] current_xy;
 	reg [7:0] R_out_buffer, G_out_buffer, B_out_buffer;
-	reg [7:0] tile_address;
+	reg [11:0] tile_address;
 	reg load_R, load_G, load_B,request_data;
 	reg draw_pixel, reset_xy_load_tile_address;
 	reg [7:0] current_state, next_state;
