@@ -8,11 +8,11 @@ module collision_detector(
     output [4:0] new_y_pos
 );
 
-    reg [22:0] current_map [0:14];
-    reg [22:0] map1 [0:14];
-    reg [22:0] map2 [0:14];
-    reg [22:0] map3 [0:14];
-    reg [22:0] map4 [0:14];
+    reg [0:22] current_map [0:14];
+    reg [0:22] map1 [0:14];
+    reg [0:22] map2 [0:14];
+    reg [0:22] map3 [0:14];
+    reg [0:22] map4 [0:14];
 
     // Draw maps here
     // MAP 1
