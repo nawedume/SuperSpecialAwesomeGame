@@ -1,10 +1,10 @@
 module collision_detector(
-    input [19:0] current_x_pos,
-    input [14:0] current_y_pos,
+    input [5:0] current_x_pos,
+    input [5:0] current_y_pos,
     input [1:0] move,
     input [2:0] map,
-    output [22:0] new_x_pos,
-    output [14:0] new_y_pos
+    output [5:0] new_x_pos,
+    output [5:0] new_y_pos
 );
 
     reg [22:0] current_map [0:14];
@@ -87,7 +87,7 @@ module collision_detector(
     end
 
     
-    reg [22:0] temp_x;
+    reg [19:0] temp_x;
     reg [14:0] temp_y;
 
     
