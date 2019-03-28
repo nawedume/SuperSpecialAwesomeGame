@@ -100,13 +100,11 @@ module tiledrawer(
 			end
 
 			S_SAVE_R: begin
-				rom_request_address_buffer = tile_address;
-				request_data = 1'b1;
+				
 			end
 
 			S_POSTSAVE_R: begin
-				rom_request_address_buffer = tile_address;
-				request_data = 1'b1;
+				
 				load_R = 1'b1;
 			end
 
@@ -116,13 +114,11 @@ module tiledrawer(
 			end
 
 			S_SAVE_G: begin
-				rom_request_address_buffer = tile_address + 12'b000000000001;
-				request_data = 1'b1;
+				
 			end
 
 			S_POSTSAVE_G: begin
-				rom_request_address_buffer = tile_address + 12'b000000000001;
-				request_data = 1'b1;
+				
 				load_G = 1'b1;
 			end
 
@@ -132,13 +128,11 @@ module tiledrawer(
 			end
 
 			S_SAVE_B: begin
-				rom_request_address_buffer = tile_address + 12'b000000000010;
-				request_data = 1'b1;
+				
 			end
 
-			S_POSTSAVE_R: begin
-				rom_request_address_buffer = tile_address + 12'b000000000010;
-				request_data = 1'b1;
+			S_POSTSAVE_B: begin
+				
 				load_B = 1'b1;
 			end
 
