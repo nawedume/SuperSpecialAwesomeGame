@@ -87,10 +87,14 @@ module screen_refresh(
 			vga_draw_enable <= 1'b1;
 		end
 		else begin
-			// if not, disable the vga draw output and reset the counter
+			// if not, disable the vga draw output
+			vga_draw_enable <= 1'b0;
+		end
+
+		if(active == 1'b0) begin
 			vga_draw_enable <= 1'b0;
 			counter_val <= 17'b00000000000000000;
-		end
+		end 
 		
 		// move to next state after all logic
 		current_state <= next_state;
