@@ -5,47 +5,73 @@ module test_collision(
     output [6:0] HEX2,
     output [6:0] HEX3
 );
-
-    wire [2:0] move_control;
-    assign move_control = SW[17:15];
-
-    wire [4:0] x_pos;
-    assign x_pos = SW[4:0];
-    wire [4:0] y_pos;
-    assign y_pos = SW[9:5];
-
-    wire [4:0] new_x_pos;
-    wire [4:0] new_y_pos;
-
-    collision_detector cd(
-        .current_x_pos(x_pos),
-        .current_y_pos(y_pos),
-        .move(move_control),
-        .map(2'b00),
+    wire [19:0] frame_counter;
+    RateDivider_60frames framedivider(
         .clk(CLOCK_50),
-        .new_x_pos(new_x_pos),
-        .new_y_pos(new_y_pos)
+        .counter(frame_counter)
+    );
+    wire frame_reset;
+    assign frame_reset = frame_counter == 20'b0;
+
+
+    reg [4:0] player_x_pos = 5'b1;
+    reg [4:0] player_y_pos = 5'b1;
+
+    // instantiate ps2 receiver
+    ps2_rx ps2_rx_unit (
+        .clk(CLOCK_50),
+        .reset(frame_reset),
+        .rx_en(1'b1),
+        .ps2d(PS2_KBDAT),
+        .ps2c(PS2_KBCLK),
+        .rx_done_tick(scan_done_tick),
+        .rx_data(scan_out)
     );
 
+    wire [2:0] move_out; 
+    // Get move
+    move_control mymove(
+        .keyboard_data(scan_out),
+        .move(move_out)
+    );
+
+
+    collision_detector cdec(
+        .current_x_pos(player_x_pos),
+        .current_y_pos(player_y_pos),
+        .move(move_out),
+        .map(2'b00),
+        .new_x_pos(player_new_x),
+        .new_y_pos(player_new_y)
+    );
+
+    wire [4:0] player_new_x;
+    wire [4:0] player_new_y;
+
+    always @ (posedge CLOCK_50)
+    begin
+        player_x_pos <= player_new_x;
+        player_y_pos <= player_new_y;
+    end
+
+    wire [7:0] player_x_pixel;
+    wire [6:0] player_y_pixel;
+
+    assign player_x_pixel = 8 * player_x_pos;
+    assign player_y_pixel = 8 * player_y_pos;
+
+
     hex_decoder h0(
-        .bin(y_pos[3:0]),
+        .bin(player_y_pos[3:0]),
         .hex(HEX0)
     );
 
     hex_decoder h1(
-        .bin(x_pos[3:0]),
+        .bin(player_x_pos[3:0]),
         .hex(HEX1)
     );
 
-    hex_decoder h2(
-        .bin(new_y_pos[3:0]),
-        .hex(HEX2)
-    );
 
-    hex_decoder h3(
-        .bin(new_x_pos[3:0]),
-        .hex(HEX3)
-    );
     
 endmodule
 

@@ -105,7 +105,7 @@ module vgatest
     wire [23:0] colourtest;
 
 	tiledrawer gpu(
-		.clk(~KEY[2]),
+		.clk(CLOCK_50),
 		.tile_address_volitile(12'b000000000000),
 		.x_pos_volitile(SW[7:0]),
 		.y_pos_volitile(8'b0110000),
@@ -115,7 +115,7 @@ module vgatest
 		.vga_x_out_bus(x),
 		.vga_y_out_bus(y),
 		.vga_RGB_out_bus(colour),
-		.draw(~KEY[3]),
+		.draw(drawtile),
 		.statetestout(LEDR[7:0]),
 		.rgbtestout(colourtest)
 		);

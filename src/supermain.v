@@ -72,6 +72,7 @@ module supermain(
     assign player_y_pixel = 8 * player_y_pos;
 
 
+    /*
 	// Create the colour, x, y and writeEn wires that are inputs to the controller.
 	wire [23:0] colour;
 	tri0 writeEn;
@@ -88,7 +89,7 @@ module supermain(
 			.x(x_pixel),
 			.y(y_pixel),
 			.plot(writeEn),
-			/* Signals for the DAC to drive the monitor. */
+
 			.VGA_R(VGA_R),
 			.VGA_G(VGA_G),
 			.VGA_B(VGA_B),
@@ -144,6 +145,6 @@ module supermain(
         .vga_RGB_out_bus(colour),
         .vga_draw_enable_bus(writeEn),
         .done(drawtile)
-    );
+    );*/
 
 endmodule
