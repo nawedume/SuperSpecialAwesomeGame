@@ -122,7 +122,7 @@ module vgatest
 
 	screen_refresh blackscreen(
 		.clk(CLOCK_50),
-		.enable(~KEY[1]),
+		.enable(frame_reset),
 		.vga_x_out_bus(x),
 		.vga_y_out_bus(y),
 		.vga_RGB_out_bus(colour),

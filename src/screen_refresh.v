@@ -90,11 +90,11 @@ module screen_refresh(
 			vga_x_out <= x_out_buffer;
 			vga_y_out <= y_out_buffer;
 			counter_val <= counter_val  + 17'b00000000000000001;
-			if(even = 1'b1) begin
+			if(even == 1'b1) begin
 				vga_RGB_out <= 24'h000000;
 			end
 			else begin
-				vga_RGB_out <= 24'hFFFFFF;
+				vga_RGB_out <= 24'h000000;
 			end
 			vga_draw_enable <= 1'b1;
 		end

@@ -1,21 +1,64 @@
 module test_collision(
-    input [17:0] SW,
+    input CLOCK_50,
+    input PS2_KBCLK,    // Keyboard clock
+    input PS2_KBDAT,    // Keyboard input data
+    input [3:0] KEY,
     output [6:0] HEX0,
     output [6:0] HEX1,
-    output [6:0] HEX2,
-    output [6:0] HEX3
+    output [4:0] LEDR
 );
+
+    wire scan_done_tick;
+    wire [7:0] scan_out;
+    wire [2:0] move_out;
+	
+    // Rate divider that measures 1/60th of a second,
+    // controls frame counter
+
     wire [19:0] frame_counter;
+    wire frame_reset;
+
     RateDivider_60frames framedivider(
         .clk(CLOCK_50),
         .counter(frame_counter)
     );
-    wire frame_reset;
+
     assign frame_reset = frame_counter == 20'b0;
 
+    reg [4:0] xpos;
+    initial xpos = 5'b00001;
+    reg [4:0] ypos;
+    initial ypos = 5'b00001;
 
-    reg [4:0] player_x_pos = 5'b1;
-    reg [4:0] player_y_pos = 5'b1;
+    wire [4:0] new_xpos;
+    wire [4:0] new_ypos;
+
+    collision_detector cd(
+        .current_x_pos(xpos),
+        .current_y_pos(ypos),
+        .move(move_out),
+        .map(2'b00),
+        .clk(CLOCK_50),
+        .new_x_pos(new_xpos),
+        .new_y_pos(new_ypos)
+    );
+
+    always @ (posedge frame_reset)
+    begin
+        xpos <= new_xpos;
+        ypos <= new_ypos;
+    end
+
+    
+    hex_decoder hd0(
+        .bin(ypos[3:0]),
+        .hex(HEX0)
+    );
+
+    hex_decoder hd1(
+        .bin(xpos[3:0]),
+        .hex(HEX1)
+    );
 
     // instantiate ps2 receiver
     ps2_rx ps2_rx_unit (
@@ -28,51 +71,36 @@ module test_collision(
         .rx_data(scan_out)
     );
 
-    wire [2:0] move_out; 
     // Get move
     move_control mymove(
         .keyboard_data(scan_out),
         .move(move_out)
     );
 
+    reg [4:0] l;
 
-    collision_detector cdec(
-        .current_x_pos(player_x_pos),
-        .current_y_pos(player_y_pos),
-        .move(move_out),
-        .map(2'b00),
-        .new_x_pos(player_new_x),
-        .new_y_pos(player_new_y)
-    );
-
-    wire [4:0] player_new_x;
-    wire [4:0] player_new_y;
 
     always @ (posedge CLOCK_50)
-    begin
-        player_x_pos <= player_new_x;
-        player_y_pos <= player_new_y;
+        begin
+        if (scan_done_tick == 1'b0)
+        begin
+            case (move_out)
+                3'b001: l <= 5'b00001;
+                3'b010: l <= 5'b00010;  
+                3'b011: l <= 5'b00100;  
+                3'b100: l <= 5'b01000;  
+                3'b101: l <= 5'b10000; 
+            default: l <= 5'b00000;
+            endcase
+        end
+        else
+        begin
+            l <= 5'b00000;
+        end
     end
-
-    wire [7:0] player_x_pixel;
-    wire [6:0] player_y_pixel;
-
-    assign player_x_pixel = 8 * player_x_pos;
-    assign player_y_pixel = 8 * player_y_pos;
-
-
-    hex_decoder h0(
-        .bin(player_y_pos[3:0]),
-        .hex(HEX0)
-    );
-
-    hex_decoder h1(
-        .bin(player_x_pos[3:0]),
-        .hex(HEX1)
-    );
-
-
     
+    assign LEDR = l;
+
 endmodule
 
 
