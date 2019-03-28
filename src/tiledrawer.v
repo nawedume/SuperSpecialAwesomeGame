@@ -10,10 +10,12 @@ module tiledrawer(
 	output [7:0] vga_x_out_bus,
 	output [7:0] vga_y_out_bus,
 	output [23:0] vga_RGB_out_bus,
-	output [7:0] testout,
+	output [7:0] statetestout,
+	output [23:0] rgbtestout,
 	output reg active
 	);
-	assign testout = current_state;
+	assign statetestout = current_state;
+	assign rgbtestout = {R_out_buffer, G_out_buffer, B_out_buffer};
 	// init regs used for internal calcs 
 	reg [7:0] x_in, y_in, x_out_buffer, y_out_buffer;
 	reg [6:0] current_xy;
@@ -43,11 +45,11 @@ module tiledrawer(
 				S_SAVE_R				= 8'd5,
 				S_SAVE_G				= 8'd6,
 				S_SAVE_B				= 8'd7,
-				S_DRAW					= 8'd8,
-				S_CHECK_FINISHED_TILE   = 8'd9,
-				S_POSTSAVE_R			= 8'd10,
-				S_POSTSAVE_G			= 8'd11,
-				S_POSTSAVE_B			= 8'd12;
+				S_POSTSAVE_R			= 8'd8,
+				S_POSTSAVE_G			= 8'd9,
+				S_POSTSAVE_B			= 8'd10,
+				S_DRAW					= 8'd11,
+				S_CHECK_FINISHED_TILE   = 8'd12;
 
 	// state table for FSM of tiledrawer
 	always @(*)
@@ -100,12 +102,12 @@ module tiledrawer(
 			S_SAVE_R: begin
 				rom_request_address_buffer = tile_address;
 				request_data = 1'b1;
-				load_R = 1'b1;
 			end
 
 			S_POSTSAVE_R: begin
 				rom_request_address_buffer = tile_address;
 				request_data = 1'b1;
+				load_R = 1'b1;
 			end
 
 			S_REQUEST_G: begin
@@ -116,12 +118,12 @@ module tiledrawer(
 			S_SAVE_G: begin
 				rom_request_address_buffer = tile_address + 12'b000000000001;
 				request_data = 1'b1;
-				load_G = 1'b1;
 			end
 
-			S_POSTSAVE_R: begin
+			S_POSTSAVE_G: begin
 				rom_request_address_buffer = tile_address + 12'b000000000001;
 				request_data = 1'b1;
+				load_G = 1'b1;
 			end
 
 			S_REQUEST_B: begin
@@ -132,12 +134,12 @@ module tiledrawer(
 			S_SAVE_B: begin
 				rom_request_address_buffer = tile_address + 12'b000000000010;
 				request_data = 1'b1;
-				load_B = 1'b1;
 			end
 
 			S_POSTSAVE_R: begin
 				rom_request_address_buffer = tile_address + 12'b000000000010;
 				request_data = 1'b1;
+				load_B = 1'b1;
 			end
 
 			// once all values for the pixel are loaded, draw the pixel

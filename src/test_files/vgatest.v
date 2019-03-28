@@ -102,6 +102,8 @@ module vgatest
 
     assign frame_reset = frame_counter == 20'b0;
 
+    wire [23:0] colourtest;
+
 	tiledrawer gpu(
 		.clk(~KEY[2]),
 		.tile_address_volitile(12'b000000000000),
@@ -114,7 +116,8 @@ module vgatest
 		.vga_y_out_bus(y),
 		.vga_RGB_out_bus(colour),
 		.draw(~KEY[3]),
-		.testout(LEDR[7:0])
+		.statetestout(LEDR[7:0]),
+		.rgbtestout(colourtest)
 		);
 
 	screen_refresh blackscreen(
@@ -128,32 +131,32 @@ module vgatest
 		);
     
 	hex_decoder hex5(
-		.bin(colour[23:20]),
+		.bin(colourtest[23:20]),
 		.hex(HEX5)
 	);
 
 	hex_decoder hex4(
-		.bin(colour[19:16]),
+		.bin(colourtest[19:16]),
 		.hex(HEX4)
 	);
 
 	hex_decoder hex3(
-		.bin(colour[15:12]),
+		.bin(colourtest[15:12]),
 		.hex(HEX3)
 	);
 
 	hex_decoder hex2(
-		.bin(colour[11:8]),
+		.bin(colourtest[11:8]),
 		.hex(HEX2)
 	);
 
 	hex_decoder hex1(
-		.bin(colour[7:4]),
+		.bin(colourtest[7:4]),
 		.hex(HEX1)
 	);
 
 	hex_decoder hex0(
-		.bin(colour[3:0]),
+		.bin(colourtest[3:0]),
 		.hex(HEX0)
 	);
     // Instansiate datapath
