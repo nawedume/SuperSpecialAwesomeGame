@@ -22,6 +22,7 @@ module test_collision(
         .current_y_pos(y_pos),
         .move(move_control),
         .map(2'b00),
+        .clk(CLOCK_50),
         .new_x_pos(new_x_pos),
         .new_y_pos(new_y_pos)
     );
