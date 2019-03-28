@@ -102,13 +102,14 @@ module tiledrawer(
 			S_SAVE_R: begin
 				rom_request_address_buffer = tile_address;
 				request_data = 1'b1;
+				R_out_buffer = rom_request_data;
 			end
 
 			S_POSTSAVE_R: begin
 				rom_request_address_buffer = tile_address;
 				request_data = 1'b1;
 				//load_R = 1'b1;
-				R_out_buffer = rom_request_data;
+				
 			end
 
 			S_REQUEST_G: begin
@@ -119,13 +120,14 @@ module tiledrawer(
 			S_SAVE_G: begin
 				rom_request_address_buffer = tile_address + 12'b000000000001;
 				request_data = 1'b1;
+				G_out_buffer = rom_request_data;
 			end
 
 			S_POSTSAVE_G: begin
 				rom_request_address_buffer = tile_address + 12'b000000000001;
 				request_data = 1'b1;
 				//load_G = 1'b1;
-				G_out_buffer = rom_request_data;
+				
 			end
 
 			S_REQUEST_B: begin
@@ -136,13 +138,14 @@ module tiledrawer(
 			S_SAVE_B: begin
 				rom_request_address_buffer = tile_address + 12'b000000000010;
 				request_data = 1'b1;
+				B_out_buffer = rom_request_data;
 			end
 
 			S_POSTSAVE_B: begin
 				rom_request_address_buffer = tile_address + 12'b000000000010;
 				request_data = 1'b1;
 				//load_B = 1'b1;
-				B_out_buffer = rom_request_data;
+				
 			end
 
 			// once all values for the pixel are loaded, draw the pixel
