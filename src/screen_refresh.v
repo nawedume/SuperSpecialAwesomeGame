@@ -13,6 +13,7 @@ module screen_refresh(
 	reg draw_pixel;
 	reg [7:0] current_state, next_state;
 	reg active;
+	reg even;
 
 	reg [7:0] vga_x_out;
 	reg [7:0] vga_y_out;
@@ -47,6 +48,7 @@ module screen_refresh(
 		active = 1'b1;
 		draw_pixel = 1'b0;
 		done = 1'b0;
+		even = 1'b0;
 		case (current_state)
 
 			// once all values for the pixel are loaded, draw the pixel
@@ -56,6 +58,10 @@ module screen_refresh(
 				y_out_buffer = counter_val[15:8];
 				if(counter_val == 17'b10000000000000000) begin
 					active = 1'b0;
+				end
+
+				if(counter_val % 17'b00000000000000010) begin
+					even = 1'b1;
 				end
 			end
 
@@ -69,6 +75,7 @@ module screen_refresh(
 				active = 1'b0;
 				done = 1'b0;
 				draw_pixel = 1'b0;
+				even = 1'b0;
 			end
 		endcase
 	end
@@ -83,7 +90,12 @@ module screen_refresh(
 			vga_x_out <= x_out_buffer;
 			vga_y_out <= y_out_buffer;
 			counter_val <= counter_val  + 17'b00000000000000001;
-			vga_RGB_out <= 24'h000000;
+			if(even = 1'b1) begin
+				vga_RGB_out <= 24'h000000;
+			end
+			else begin
+				vga_RGB_out <= 24'hFFFFFF;
+			end
 			vga_draw_enable <= 1'b1;
 		end
 		else begin
