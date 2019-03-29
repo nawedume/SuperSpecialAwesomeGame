@@ -63,17 +63,12 @@ module map_drawer(
 	begin: state_table 
 			case (current_state)
 				S_INACTIVE: next_state = draw ? S_LOAD_INIT_VALUES : S_INACTIVE; // check ? load if true : load if false
-				S_LOAD_INIT_VALUES: next_state = S_REQUEST_RGB;
-				S_REQUEST_R: next_state = S_SAVE_R;
-				S_SAVE_R: next_state = S_POSTSAVE_R;
-				S_POSTSAVE_R: next_state = S_REQUEST_G;
-				S_REQUEST_G: next_state = S_SAVE_G;
-				S_SAVE_G: next_state = S_POSTSAVE_G;
-				S_POSTSAVE_G: next_state = S_REQUEST_B;
-				S_REQUEST_B: next_state = S_SAVE_B;
-				S_SAVE_B: next_state = S_POSTSAVE_B;
-				S_POSTSAVE_B: next_state = S_DRAW;
-				S_REQUEST_RGB: next_state = S_SAVE_RGB;
+				S_LOAD_INIT_VALUES: next_state = S_REQUEST_RGB1;
+				S_REQUEST_RGB1: next_state = S_REQUEST_RGB2;
+				S_REQUEST_RGB2: next_state = S_REQUEST_RGB3;
+				S_REQUEST_RGB3: next_state = S_REQUEST_RGB4;
+				S_REQUEST_RGB4: next_state = S_REQUEST_RGB5;
+				S_REQUEST_RGB5: next_state = S_SAVE_RGB;
 				S_SAVE_RGB: next_state = S_DRAW;
 				S_DRAW: next_state = S_CHECK_FINISHED_TILE; 
 				S_CHECK_FINISHED_TILE: next_state = active ? S_REQUEST_RGB : S_DONE;
@@ -99,9 +94,20 @@ module map_drawer(
 				reset_xy_load_tile_address = 1'b1;
 			end
 
-			S_REQUEST_RGB: begin
-				rom_request_address_buffer = tile_address;
-				request_data = 1'b1;
+			S_REQUEST_RGB1: begin
+				rom_address = tile_address;
+			end
+			S_REQUEST_RGB2: begin
+				rom_address = tile_address;
+			end
+			S_REQUEST_RGB3: begin
+				rom_address = tile_address;
+			end
+			S_REQUEST_RGB4: begin
+				rom_address = tile_address;
+			end
+			S_REQUEST_RGB5: begin
+				rom_address = tile_address;
 			end
 
 			S_SAVE_RGB: begin
@@ -161,7 +167,7 @@ module map_drawer(
 
 			// once all values for the pixel are loaded, draw the pixel
 			S_DRAW: begin
-				if(current_x == 8'b01110111) begin
+				if(current_x == 8'b10100000) begin
 					draw_pixel = 2'b10;
 				end 
 				else begin
@@ -172,8 +178,7 @@ module map_drawer(
 			end
 			// and once the pixel is drawn, check to see if the row or tile is finished
 			S_CHECK_FINISHED_TILE: begin
-				
-				if(current_y == 8'b10011111) begin
+				if(current_y == 8'b01111000) begin
 					active = 1'b0;
 				end
 			end
