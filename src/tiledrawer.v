@@ -1,11 +1,11 @@
-module tile_drawer(
+module map_drawerback(
 	input clk,
-	input [11:0] tile_address_volitile,
+	input [15:0] tile_address_volitile,
 	input [7:0] x_pos_volitile,
 	input [7:0] y_pos_volitile,
 	input draw,
 	input [23:0] rom_request_data,
-	output reg [11:0] rom_request_address,
+	output [15:0] rom_address_bus,
 	output vga_draw_enable_bus,
 	output [7:0] vga_x_out_bus,
 	output [7:0] vga_y_out_bus,
@@ -22,11 +22,12 @@ module tile_drawer(
 	reg [6:0] current_xy;
 	reg [7:0] R_out_buffer, G_out_buffer, B_out_buffer;
 	reg [23:0] RGB_out_buffer;
-	reg [11:0] tile_address;
+	reg [15:0] tile_address;
 	reg request_data;
 	reg draw_pixel, reset_xy_load_tile_address;
 	reg [7:0] current_state, next_state;
-	reg [11:0] rom_request_address_buffer;
+	reg [15:0] rom_request_address_buffer;
+	reg [15:0] rom_request_address;
 
 	reg [7:0] vga_x_out;
 	reg [7:0] vga_y_out;
@@ -37,6 +38,7 @@ module tile_drawer(
 	assign vga_y_out_bus = active ? vga_y_out : 8'bzzzzzzzz;
 	assign vga_RGB_out_bus = active ? vga_RGB_out : 24'bzzzzzzzzzzzzzzzzzzzzzzzz;
 	assign vga_draw_enable_bus = active ? vga_draw_enable : 1'bz;
+	assign rom_address_bus = active ? rom_request_address : 16'bzzzzzzzzzzzzzzzz;
 
 	// params for ease of reading
 	localparam  S_INACTIVE 				= 8'd0,
@@ -53,7 +55,8 @@ module tile_drawer(
 				S_REQUEST_RGB			= 8'd11,
 				S_SAVE_RGB				= 8'd12,
 				S_DRAW					= 8'd13,
-				S_CHECK_FINISHED_TILE   = 8'd14;
+				S_CHECK_FINISHED_TILE   = 8'd14,
+				S_DONE					= 8'd15;
 
 	// state table for FSM of tiledrawer
 	always @(*)
@@ -71,7 +74,7 @@ module tile_drawer(
 				S_SAVE_B: next_state = S_POSTSAVE_B;
 				S_POSTSAVE_B: next_state = S_DRAW;
 				S_REQUEST_RGB: next_state = S_SAVE_RGB;
-				S_SAVE_RGB: next_state = S_POSTSAVE_DRAW;
+				S_SAVE_RGB: next_state = S_DRAW;
 				S_DRAW: next_state = S_CHECK_FINISHED_TILE; 
 				S_CHECK_FINISHED_TILE: next_state = active ? S_REQUEST_RGB : S_DONE;
 				S_DONE: next_state = S_INACTIVE;
@@ -88,7 +91,7 @@ module tile_drawer(
 		request_data = 1'b0;
 		draw_pixel = 1'b0;
 		reset_xy_load_tile_address = 1'b0;
-		rom_request_address_buffer = 12'b000000000000;
+		rom_request_address_buffer = 16'b000000000000000;
 		done = 1'b0;
 		case (current_state)
 			// at start of every tile, load the relative x/y and tile address, then reset the internal counters
@@ -109,13 +112,13 @@ module tile_drawer(
 				RGB_out_buffer = rom_request_data;
 			end
 
-			// then request the RGB in 3 cycles to stay in pace with ROM
-			S_REQUEST_R: begin
-				rom_request_address_buffer = tile_address;
-				request_data = 1'b1;
+			// then requesttile_drawerwith ROM
+			S_REQUEST_R: betile_drawer
+				rom_requesttile_drawer
+				request_dattile_drawer
 			end
 
-			S_SAVE_R: begin
+			S_SAVE_R: begintile_drawer
 				rom_request_address_buffer = tile_address;
 				request_data = 1'b1;
 			end
@@ -127,38 +130,38 @@ module tile_drawer(
 			end
 
 			S_REQUEST_G: begin
-				rom_request_address_buffer = tile_address + 12'b000000000001;
+				rom_request_address_buffer = tile_address + 16'b0000000000000001;
 				request_data = 1'b1;
 			end
 
 			S_SAVE_G: begin
-				rom_request_address_buffer = tile_address + 12'b000000000001;
+				rom_request_address_buffer = tile_address + 16'b0000000000000001;
 				request_data = 1'b1;
 			end
 
 			S_POSTSAVE_G: begin
-				rom_request_address_buffer = tile_address + 12'b000000000001;
+				rom_request_address_buffer = tile_address + 16'b0000000000000001;
 				request_data = 1'b1;
 				G_out_buffer = rom_request_data;
 			end
 
 			S_REQUEST_B: begin
-				rom_request_address_buffer = tile_address + 12'b000000000010;
+				rom_request_address_buffer = tile_address + 16'b0000000000000010;
 				request_data = 1'b1;
 			end
 
 			S_SAVE_B: begin
-				rom_request_address_buffer = tile_address + 12'b000000000010;
+				rom_request_address_buffer = tile_address + 16'b0000000000000010;
 				request_data = 1'b1;
 			end
 
 			S_POSTSAVE_B: begin
-				rom_request_address_buffer = tile_address + 12'b000000000010;
+				rom_request_address_buffer = tile_address + 16'b0000000000000010;
 				request_data = 1'b1;
 				B_out_buffer = rom_request_data;
 			end
 
-			// once all values for the pixel are loaded, draw the pixel
+			// once all values for the pixel rom_request_addressare loaded, draw the pixel
 			S_DRAW: begin
 				draw_pixel = 1'b1;
 				y_out_buffer = x_in + current_xy[5:3];
@@ -178,13 +181,10 @@ module tile_drawer(
 			end
 
 			default: begin
-				rom_request_address_buffer = 12'b000000000000;
+				rom_request_address_buffer = 16'b0000000000000000;
 				reset_xy_load_tile_address = 1'b0;
 				draw_pixel = 1'b0;
 				request_data = 1'b0;
-				load_R = 1'b0;
-				load_G = 1'b0;
-				load_B = 1'b0;
 				active = 1'b0;
 				done = 1'b0;
 				end
@@ -210,7 +210,7 @@ module tile_drawer(
 			vga_y_out <= y_out_buffer;
 			current_xy <= current_xy + 7'b0000001;
 			vga_RGB_out <= RGB_out_buffer;
-			tile_address <= tile_address + 12'b000000000001;
+			tile_address <= tile_address + 16'b0000000000000001;
 			vga_draw_enable <= 1'b1;
 		end
 		else begin

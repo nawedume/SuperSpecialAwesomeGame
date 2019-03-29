@@ -1,6 +1,8 @@
-module map_drawer(
+module tile_drawer(
 	input clk,
 	input [15:0] tile_address_volitile,
+	input [7:0] x_pos_volitile,
+	input [7:0] y_pos_volitile,
 	input draw,
 	input [23:0] rom_request_data,
 	output [15:0] rom_address_bus,
@@ -16,15 +18,13 @@ module map_drawer(
 	assign statetestout = current_state;
 	assign rgbtestout = {R_out_buffer, G_out_buffer, B_out_buffer};
 	// init regs used for internal calcs 
-	reg [7:0] x_out_buffer, y_out_buffer;
-	reg [7:0] current_x;
-	reg [7:0] current_y;
-	reg [6:0] current_xy;
+	reg [7:0] x_in, y_in, x_out_buffer, y_out_buffer;
+	reg [14:0] current_xy;
 	reg [7:0] R_out_buffer, G_out_buffer, B_out_buffer;
 	reg [23:0] RGB_out_buffer;
 	reg [15:0] tile_address;
-	reg request_data, reset_xy_load_tile_address;
-	reg [1:0] draw_pixel;
+	reg request_data;
+	reg draw_pixel, reset_xy_load_tile_address;
 	reg [7:0] current_state, next_state;
 	reg [15:0] rom_request_address_buffer;
 	reg [15:0] rom_request_address;
@@ -89,13 +89,15 @@ module map_drawer(
 		// set load signals to 0 by default
 		active = 1'b1;
 		request_data = 1'b0;
-		draw_pixel = 2'b00;
+		draw_pixel = 1'b0;
 		reset_xy_load_tile_address = 1'b0;
-		rom_request_address_buffer = 16'b0000000000000000;
+		rom_request_address_buffer = 16'b000000000000000;
 		done = 1'b0;
 		case (current_state)
 			// at start of every tile, load the relative x/y and tile address, then reset the internal counters
 			S_LOAD_INIT_VALUES: begin
+				x_in = x_pos_volitile;
+				y_in = y_pos_volitile;
 				reset_xy_load_tile_address = 1'b1;
 			end
 
@@ -159,21 +161,15 @@ module map_drawer(
 				B_out_buffer = rom_request_data;
 			end
 
-			// once all values for the pixel are loaded, draw the pixel
+			// once all values for the pixel rom_request_addressare loaded, draw the pixel
 			S_DRAW: begin
-				if(current_x == 8'b01110111) begin
-					draw_pixel = 2'b10;
-				end 
-				else begin
-					draw_pixel = 2'b01;
-				end
-				y_out_buffer = current_y;
-				x_out_buffer = current_x;
+				draw_pixel = 1'b1;
+				y_out_buffer = x_in + current_xy[13:7];
+				x_out_buffer = y_in + current_xy[6:0];
 			end
 			// and once the pixel is drawn, check to see if the row or tile is finished
 			S_CHECK_FINISHED_TILE: begin
-				
-				if(current_y == 8'b10011111) begin
+				if(current_xy == 15'b10000000000000) begin
 					active = 1'b0;
 				end
 			end
@@ -187,7 +183,7 @@ module map_drawer(
 			default: begin
 				rom_request_address_buffer = 16'b0000000000000000;
 				reset_xy_load_tile_address = 1'b0;
-				draw_pixel = 2'b00;
+				draw_pixel = 1'b0;
 				request_data = 1'b0;
 				active = 1'b0;
 				done = 1'b0;
@@ -203,28 +199,16 @@ module map_drawer(
 			rom_request_address <= rom_request_address_buffer;
 
 		if(reset_xy_load_tile_address) begin
-			current_xy <= 7'b0000000;
-			current_x <= 8'b00000000;
-			current_y <= 8'b00000000;
+			current_xy <= 15'b000000000000000;
 			tile_address <= tile_address_volitile;
 		end
 
 		// check if a pixel is being drawn this cycle
-		if(draw_pixel == 2'b01) begin
+		if(draw_pixel == 1'b1) begin
 			// if so, load the buffer values and update the pixel address to the next one
 			vga_x_out <= x_out_buffer;
 			vga_y_out <= y_out_buffer;
-			current_x <= current_x + 8'b00000001;
-			vga_RGB_out <= RGB_out_buffer;
-			tile_address <= tile_address + 16'b0000000000000001;
-			vga_draw_enable <= 1'b1;
-		end
-		else if(draw_pixel == 2'b10) begin
-			// if so, load the buffer values and update the pixel address to the next one
-			vga_x_out <= x_out_buffer;
-			vga_y_out <= y_out_buffer;
-			current_y <= current_y + 8'b00000001;
-			current_x <= 8'b00000000;
+			current_xy <= current_xy + 15'b000000000000001;
 			vga_RGB_out <= RGB_out_buffer;
 			tile_address <= tile_address + 16'b0000000000000001;
 			vga_draw_enable <= 1'b1;

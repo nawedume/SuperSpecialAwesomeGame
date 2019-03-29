@@ -18,7 +18,7 @@ CONTENT BEGIN
                 print("     %03X : %02X%02X%02X;" % (counter, pixel[0], pixel[1], pixel[2]))
                 counter += 1
 
-    print("     [%03X..FFF] : 00;" % counter)
+    print("     [%03X..FFFF] : 00;" % counter)
     print('''END;''')
 
 if __name__ == '__main__':

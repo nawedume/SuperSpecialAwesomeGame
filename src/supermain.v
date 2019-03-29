@@ -67,8 +67,8 @@ module supermain(
         if (map == 2'b00 && xpos == 5'd13 && ypos == 5'd14)
         begin
             map <= map + 1'b1;
-            xpos <=  5'b01000;
-            ypos <=  5'b00000;
+            xpos <=  5'b00000;
+            ypos <=  5'b01000;
         end
         else if (map == 2'b01 && xpos == 5'd6 && ypos == 5'd8)
         begin
@@ -108,11 +108,11 @@ module supermain(
         .counter(score_counter)
     );
 
-    always @ (CLOCK_50)
+    always @ (score_counter)
     begin
-        if (score_counter == 32'd0)
+        if (score_counter == 32'b0)
         begin
-            score = score + 1'b1;
+            score <= score + 1'b1;
         end
     end
     
@@ -126,7 +126,7 @@ module supermain(
         .hex(HEX5)
     );
 
-
+    
 
     hex_decoder hd0(
         .bin(ypos[3:0]),
@@ -198,7 +198,7 @@ module supermain(
 	// Create an Instance of a VGA controller - there can be only one!
 	// Define the number of colours as well as the initial background
 	// image file (.MIF) for the controller.
-	vga_adapter VGA(
+	vga_adapter VGA(tile_drawer
 			.resetn(resetn),
 			.clock(CLOCK_50),
 			.colour(colour),
@@ -220,12 +220,12 @@ module supermain(
 		defparam VGA.BACKGROUND_IMAGE = "black.mif";
 	
 
-    wire [11:0] rom_address;
+    wire [15:0] rom_address;
 	wire [23:0] rom_data;
 	wire drawtile;
     wire drawmap;
 
-	rom4096x24 myrom(
+	rom24 myrom(
 		.address(rom_address),
 		.clock(CLOCK_50),
 		.q(rom_data)
@@ -233,26 +233,43 @@ module supermain(
 
     wire [23:0] colourtest;
 
-    map_drawer gpu(
+/*
+    map_drawer gpum(
         .clk(CLOCK_50),
-        .tile_address_volitile(12'b000000000000),
+        .tile_address_volitile(16'h000100),
         .rom_request_data(rom_data),
-        .rom_request_address(rom_address),
+        .rom_address_bus(rom_address),
         .vga_draw_enable_bus(writeEn),
         .vga_x_out_bus(x),
         .vga_y_out_bus(y),
         .vga_RGB_out_bus(colour),
         .draw(frame_reset),
-        .done(drawmap)
-        );
+        .done(drawtile)
+        );*/
 
-	tile_drawer gpu(
+    map_drawerback gpum(
+        clk(CLOCK_50),
+		.tile_address_volitile(16'h000100),
+		.x_pos_volitile(8'b00000000),
+		.y_pos_volitile(8'b00000000),
+		.rom_request_data(rom_data),
+		.rom_address_bus(rom_address),
+		.vga_draw_enable_bus(writeEn),
+		.vga_x_out_bus(x),
+		.vga_y_out_bus(y),
+		.vga_RGB_out_bus(colour),
+		.draw(frame_reset),
+		.statetestout(LEDR[7:0]),
+		.rgbtestout(colourtest)
+		);
+
+	tile_drawer gput(
 		.clk(CLOCK_50),
-		.tile_address_volitile(12'b000000000000),
+		.tile_address_volitile(16'h000000),
 		.x_pos_volitile(x_pixel),
 		.y_pos_volitile(y_pixel),
 		.rom_request_data(rom_data),
-		.rom_request_address(rom_address),
+		.rom_address_bus(rom_address),
 		.vga_draw_enable_bus(writeEn),
 		.vga_x_out_bus(x),
 		.vga_y_out_bus(y),
@@ -262,15 +279,16 @@ module supermain(
 		.rgbtestout(colourtest)
 		);
 
+    /*
 	screen_refresh blackscreen(
 		.clk(CLOCK_50),
-		.enable(drawmap),
+		.enable(frame_reset),
 		.vga_x_out_bus(x),
 		.vga_y_out_bus(y),
 		.vga_RGB_out_bus(colour),
 		.vga_draw_enable_bus(writeEn),
-		.done(drawtile)
-		);
+		.done(drawmap)
+		);*/
 
 endmodule
 
