@@ -50,8 +50,12 @@ module tile_drawer(
 	begin: state_table 
 			case (current_state)
 				S_INACTIVE: next_state = draw ? S_LOAD_INIT_VALUES : S_INACTIVE; // check ? load if true : load if false
-				S_LOAD_INIT_VALUES: next_state = S_REQUEST_RGB;
-				S_REQUEST_RGB: next_state = S_SAVE_RGB;
+				S_LOAD_INIT_VALUES: next_state = S_REQUEST_RGB1;
+				S_REQUEST_RGB1: next_state = S_REQUEST_RGB2;
+				S_REQUEST_RGB2: next_state = S_REQUEST_RGB3;
+				S_REQUEST_RGB3: next_state = S_REQUEST_RGB4;
+				S_REQUEST_RGB4: next_state = S_REQUEST_RGB5;
+				S_REQUEST_RGB5: next_state = S_SAVE_RGB;
 				S_SAVE_RGB: next_state = S_DRAW;
 				S_DRAW: next_state = S_CHECK_FINISHED_TILE; 
 				S_CHECK_FINISHED_TILE: next_state = active ? S_REQUEST_RGB : S_DONE;
@@ -78,7 +82,19 @@ module tile_drawer(
 				reset_xy_load_tile_address = 1'b1;
 			end
 
-			S_REQUEST_RGB: begin
+			S_REQUEST_RGB1: begin
+				rom_address = tile_address;
+			end
+			S_REQUEST_RGB2: begin
+				rom_address = tile_address;
+			end
+			S_REQUEST_RGB3: begin
+				rom_address = tile_address;
+			end
+			S_REQUEST_RGB4: begin
+				rom_address = tile_address;
+			end
+			S_REQUEST_RGB5: begin
 				rom_address = tile_address;
 			end
 
