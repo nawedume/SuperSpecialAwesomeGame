@@ -4,7 +4,7 @@ module tiledrawer(
 	input [7:0] x_pos_volitile,
 	input [7:0] y_pos_volitile,
 	input draw,
-	input [7:0] rom_request_data,
+	input [23:0] rom_request_data,
 	output reg [11:0] rom_request_address,
 	output vga_draw_enable_bus,
 	output [7:0] vga_x_out_bus,
@@ -20,8 +20,9 @@ module tiledrawer(
 	reg [7:0] x_in, y_in, x_out_buffer, y_out_buffer;
 	reg [6:0] current_xy;
 	reg [7:0] R_out_buffer, G_out_buffer, B_out_buffer;
+	reg [23:0] RGB_out_buffer;
 	reg [11:0] tile_address;
-	reg load_R, load_G, load_B, request_data;
+	reg request_data;
 	reg draw_pixel, reset_xy_load_tile_address;
 	reg [7:0] current_state, next_state;
 	reg [11:0] rom_request_address_buffer;
@@ -48,8 +49,10 @@ module tiledrawer(
 				S_REQUEST_B 			= 8'd8,
 				S_SAVE_B				= 8'd9,
 				S_POSTSAVE_B			= 8'd10,
-				S_DRAW					= 8'd11,
-				S_CHECK_FINISHED_TILE   = 8'd12;
+				S_REQUEST_RGB			= 8'd11,
+				S_SAVE_RGB				= 8'd12,
+				S_DRAW					= 8'd13,
+				S_CHECK_FINISHED_TILE   = 8'd14;
 
 	// state table for FSM of tiledrawer
 	always @(*)
@@ -78,9 +81,6 @@ module tiledrawer(
 	begin: control
 		// set load signals to 0 by default
 		active = 1'b1;
-		load_R = 1'b0;
-		load_G = 1'b0;
-		load_B = 1'b0;
 		request_data = 1'b0;
 		draw_pixel = 1'b0;
 		reset_xy_load_tile_address = 1'b0;
@@ -91,6 +91,17 @@ module tiledrawer(
 				x_in = x_pos_volitile;
 				y_in = y_pos_volitile;
 				reset_xy_load_tile_address = 1'b1;
+			end
+
+			S_REQUEST_RGB: begin
+				rom_request_address_buffer = tile_address;
+				request_data = 1'b1;
+			end
+
+			S_SAVE_RGB: begin
+				rom_request_address_buffer = tile_address;
+				request_data = 1'b1;
+				RGB_out_buffer = rom_request_data;
 			end
 
 			// then request the RGB in 3 cycles to stay in pace with ROM
@@ -174,12 +185,6 @@ module tiledrawer(
 
 		if(request_data)
 			rom_request_address <= rom_request_address_buffer;
-		//if(load_R)
-		//	R_out_buffer <= rom_request_data;
-		//if(load_G)
-		//	G_out_buffer <= rom_request_data;
-		//if(load_B)
-		//	B_out_buffer <= rom_request_data;
 
 		if(reset_xy_load_tile_address) begin
 			current_xy <= 7'b0000000;
@@ -192,9 +197,8 @@ module tiledrawer(
 			vga_x_out <= x_out_buffer;
 			vga_y_out <= y_out_buffer;
 			current_xy <= current_xy + 7'b0000001;
-			vga_RGB_out <= {R_out_buffer, G_out_buffer, B_out_buffer};
-			//vga_RGB_out <= 24'hFFFFFF;
-			tile_address <= tile_address + 12'b000000000011;
+			vga_RGB_out <= RGB_out_buffer;
+			tile_address <= tile_address + 12'b000000000001;
 			vga_draw_enable <= 1'b1;
 		end
 		else begin
