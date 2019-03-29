@@ -233,62 +233,32 @@ module supermain(
 
     wire [23:0] colourtest;
 
-/*
     map_drawer gpum(
         .clk(CLOCK_50),
         .tile_address_volitile(16'h000100),
+        .draw(frame_reset),
         .rom_request_data(rom_data),
         .rom_address_bus(rom_address),
         .vga_draw_enable_bus(writeEn),
         .vga_x_out_bus(x),
         .vga_y_out_bus(y),
         .vga_RGB_out_bus(colour),
-        .draw(frame_reset),
         .done(drawtile)
-        );*/
-
-    map_drawerback gpum(
-        clk(CLOCK_50),
-		.tile_address_volitile(16'h000100),
-		.x_pos_volitile(8'b00000000),
-		.y_pos_volitile(8'b00000000),
-		.rom_request_data(rom_data),
-		.rom_address_bus(rom_address),
-		.vga_draw_enable_bus(writeEn),
-		.vga_x_out_bus(x),
-		.vga_y_out_bus(y),
-		.vga_RGB_out_bus(colour),
-		.draw(frame_reset),
-		.statetestout(LEDR[7:0]),
-		.rgbtestout(colourtest)
-		);
+        );
 
 	tile_drawer gput(
 		.clk(CLOCK_50),
 		.tile_address_volitile(16'h000000),
 		.x_pos_volitile(x_pixel),
 		.y_pos_volitile(y_pixel),
+        .draw(drawtile),
 		.rom_request_data(rom_data),
 		.rom_address_bus(rom_address),
 		.vga_draw_enable_bus(writeEn),
 		.vga_x_out_bus(x),
 		.vga_y_out_bus(y),
-		.vga_RGB_out_bus(colour),
-		.draw(drawtile),
-		.statetestout(LEDR[7:0]),
-		.rgbtestout(colourtest)
+		.vga_RGB_out_bus(colour)
 		);
-
-    /*
-	screen_refresh blackscreen(
-		.clk(CLOCK_50),
-		.enable(frame_reset),
-		.vga_x_out_bus(x),
-		.vga_y_out_bus(y),
-		.vga_RGB_out_bus(colour),
-		.vga_draw_enable_bus(writeEn),
-		.done(drawmap)
-		);*/
 
 endmodule
 
