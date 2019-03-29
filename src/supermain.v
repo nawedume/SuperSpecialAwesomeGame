@@ -40,9 +40,9 @@ module supermain(
     assign frame_reset = frame_counter == 20'b0;
 
     reg [4:0] xpos;
-    initial xpos = 5'b00000;
+    initial xpos = 5'b01000;
     reg [4:0] ypos;
-    initial ypos = 5'b01000;
+    initial ypos = 5'b00000;
     reg [1:0] map;
     initial map = 2'b00;
 
@@ -50,13 +50,13 @@ module supermain(
     wire [4:0] new_ypos;
 
     collision_detector cd(
-        .current_x_pos(xpos),
-        .current_y_pos(ypos),
+        .current_x_pos(ypos),
+        .current_y_pos(xpos),
         .move(move_out),
         .map(map),
         .clk(CLOCK_50),
-        .new_x_pos(new_xpos),
-        .new_y_pos(new_ypos)
+        .new_x_pos(new_ypos),
+        .new_y_pos(new_xpos)
     );
 
     always @ (posedge frame_reset)
@@ -67,8 +67,8 @@ module supermain(
         if (map == 2'b00 && xpos == 5'd13 && ypos == 5'd14)
         begin
             map <= map + 1'b1;
-            xpos <=  5'b00000;
-            ypos <=  5'b01000;
+            xpos <=  5'b01000;
+            ypos <=  5'b00000;
         end
         else if (map == 2'b01 && xpos == 5'd6 && ypos == 5'd8)
         begin
@@ -259,8 +259,8 @@ module supermain(
 	tile_drawer gput(
 		.clk(CLOCK_50),
 		.tile_address_volitile(16'h000000),
-		.x_pos_volitile(x_pixel),
-		.y_pos_volitile(y_pixel),
+		.x_in_volitile(x_pixel),
+		.y_in_volitile(y_pixel),
         .draw(drawtile),
 		.rom_request_data(rom_data),
 		.rom_address_bus(rom_address),

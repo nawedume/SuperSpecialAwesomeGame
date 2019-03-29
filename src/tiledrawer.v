@@ -69,7 +69,6 @@ module tile_drawer(
 		done = 1'b0;
 		draw_pixel = 1'b0;
 		reset_xy_load_tile_address = 1'b0;
-		rom_request_address_buffer = 16'b000000000000000;
 		case (current_state)
 			// at start of every tile, load the relative x/y and tile address, then reset the internal counters
 			S_LOAD_INIT_VALUES: begin
