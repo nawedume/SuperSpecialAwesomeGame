@@ -78,7 +78,7 @@ module supermain(
         end
     end
 
-    reg [20:0] timer;
+    reg [31:0] timer;
     reg timer_enable;
     initial timer_enable = 1'b0;
     Timer_8seconds t8(
@@ -88,8 +88,8 @@ module supermain(
     );
 
     wire timeout;
-    assign timeout = timer == 21'b0;
-    
+    assign timeout = timer == 31'b0;
+
     
     hex_decoder hd0(
         .bin(ypos[3:0]),
@@ -257,14 +257,14 @@ endmodule
 module Timer_8seconds(
 	input clk,
     input enable,
-	output reg [20:0] counter
+	output reg [31:0] counter
 );
 
 
 	always @ (posedge clk)
 	begin
-		if (counter == 21'b0)
-			counter <= 21'd400000000;		// 8 seconds
+		if (counter == 32'b0)
+			counter <= 32'd400000000;		// 8 seconds
 		else if (enable == 1'b1)
 			counter <= counter - 1'b1;
 	end
