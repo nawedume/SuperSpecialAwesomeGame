@@ -85,7 +85,7 @@ module map_drawer(
 
 			// once all values for the pixel rom_request_addressare loaded, draw the pixel
 			S_DRAW: begin
-				if(current_x == 8'b10011111) begin
+				if(current_x == 8'b10100000) begin
 					draw_pixel = 2'b10;
 				end
 				else begin
@@ -96,7 +96,7 @@ module map_drawer(
 			end
 			// and once the pixel is drawn, check to see if the row or tile is finished
 			S_CHECK_FINISHED_TILE: begin
-				if(current_y == 8'b01110111) begin
+				if(current_y == 8'b01111000) begin
 					active = 1'b0;
 				end
 			end
