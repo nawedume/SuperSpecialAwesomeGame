@@ -36,9 +36,11 @@ module supermain(
     assign frame_reset = frame_counter == 20'b0;
 
     reg [4:0] xpos;
-    initial xpos = 5'b00001;
+    initial xpos = 5'b01000;
     reg [4:0] ypos;
-    initial ypos = 5'b00001;
+    initial ypos = 5'b00000;
+    reg [1:0] map;
+    initial map = 2'b00;
 
     wire [4:0] new_xpos;
     wire [4:0] new_ypos;
@@ -47,7 +49,7 @@ module supermain(
         .current_x_pos(xpos),
         .current_y_pos(ypos),
         .move(move_out),
-        .map(2'b00),
+        .map(map),
         .clk(CLOCK_50),
         .new_x_pos(new_xpos),
         .new_y_pos(new_ypos)
@@ -57,8 +59,37 @@ module supermain(
     begin
         xpos <= new_xpos;
         ypos <= new_ypos;
+
+        if (map == 2'b00 && xpos == 5'd13 && ypos == 5'd14)
+        begin
+            map <= map + 1'b1;
+            xpos <=  5'b01000;
+            ypos <=  5'b00000;
+        end
+        if (map == 2'b01 && xpos == 5'd6 && ypos == 5'd8)
+        begin
+            map <= map + 1'b1;
+            timer_enable <= 1'b1;
+        end
+        if (map == 2'b10 && timeout)
+        begin
+            map <= 2'b01;
+            timer_enable <= 1'b0;
+        end
     end
 
+    reg [20:0] timer;
+    reg timer_enable;
+    initial timer_enable = 1'b0;
+    Timer_8seconds t8(
+        .clk(CLOCK_50),
+        .enable(timer_enable),
+        .counter(timer)
+    );
+
+    wire timeout;
+    assign timeout = timer == 21'b0;
+    
     
     hex_decoder hd0(
         .bin(ypos[3:0]),
@@ -221,4 +252,22 @@ module hex_decoder(bin, hex);
 		endcase
 
 	end
+endmodule
+
+module Timer_8seconds(
+	input clk,
+    input enable,
+	output reg [20:0] counter
+);
+
+
+	always @ (posedge clk)
+	begin
+		if (counter == 21'b0)
+			counter <= 21'd400000000;		// 8 seconds
+		else if (enable == 1'b1)
+			counter <= counter - 1'b1;
+	end
+
+
 endmodule
