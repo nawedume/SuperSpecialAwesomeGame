@@ -95,10 +95,9 @@ module tile_drawer(
 			end
 			// and once the pixel is drawn, check to see if the row or tile is finished
 			S_CHECK_FINISHED_TILE: begin
-				if(current_xy == 7'b1000000) begin
+				if(current_yx == 7'b1000000) begin
 					active = 1'b0;
 				end
-				else
 			end
 
 			S_DONE: begin
@@ -116,7 +115,7 @@ module tile_drawer(
 
 
 		if(reset_xy_load_tile_address) begin
-			current_xy <= 7'b0000000;
+			current_yx <= 7'b0000000;
 			tile_address <= tile_address_volitile;
 		end
 
@@ -125,7 +124,7 @@ module tile_drawer(
 			// if so, load the buffer values and update the pixel address to the next one
 			vga_x_out <= x_out_buffer;
 			vga_y_out <= y_out_buffer;
-			current_xy <= current_xy + 7'b0000001;
+			current_yx <= current_yx + 7'b0000001;
 			vga_RGB_out <= RGB_out_buffer;
 			tile_address <= tile_address + 16'b0000000000000001;
 			vga_draw_enable <= 1'b1;

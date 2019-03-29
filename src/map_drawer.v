@@ -68,7 +68,6 @@ module map_drawer(
 		done = 1'b0;
 		draw_pixel = 2'b00;
 		reset_xy_load_tile_address = 1'b0;
-		rom_request_address_buffer = 16'b000000000000000;
 		case (current_state)
 			// at start of every tile, load the relative x/y and tile address, then reset the internal counters
 			S_LOAD_INIT_VALUES: begin
@@ -87,7 +86,7 @@ module map_drawer(
 			// once all values for the pixel rom_request_addressare loaded, draw the pixel
 			S_DRAW: begin
 				if(current_x == 8'b10011111) begin
-					draw_pixel = 1'b10;
+					draw_pixel = 2'b10;
 				end
 				else begin
 					draw_pixel = 2'b01;
@@ -100,7 +99,6 @@ module map_drawer(
 				if(current_y == 8'b01110111) begin
 					active = 1'b0;
 				end
-				else
 			end
 
 			S_DONE: begin
