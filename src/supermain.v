@@ -233,9 +233,19 @@ module supermain(
 
     wire [23:0] colourtest;
 
+    reg [15:0] map_address;
+
+    always @ (posedge CLOCK_50) begin
+        case (map)
+            2'b00: map_address <= 16'h000100;
+            2'b01: map_address <= 16'h004B00;
+            2'b10: map_address <= 16'h009600;
+        endcase
+    end
+
     map_drawer gpum(
         .clk(CLOCK_50),
-        .tile_address_volitile(16'h000100),
+        .tile_address_volitile(map_address),
         .draw(frame_reset),
         .rom_request_data(rom_data),
         .rom_address_bus(rom_address),
