@@ -5,7 +5,7 @@ def convert(images):
     counter = 0
 
     print('''DEPTH = 4096; 
-WIDTH = 8;
+WIDTH = 24;
 ADDRESS_RADIX = HEX;
 DATA_RADIX = HEX;
 
@@ -15,9 +15,8 @@ CONTENT BEGIN
     for image_array in images:
         for row in image_array:
             for pixel in row:
-                for color in pixel:
-                    print("     %03X : %02X;" % (counter, color))
-                    counter += 1
+                print("     %03X : %02X%02X%02X;" % (counter, pixel[0], pixel[1], pixel[2]))
+                counter += 1
 
     print("     [%03X..FFF] : 00;" % counter)
     print('''END;''')

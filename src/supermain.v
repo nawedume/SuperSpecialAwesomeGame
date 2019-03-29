@@ -5,6 +5,10 @@ module supermain(
     input [3:0] KEY,
     output [6:0] HEX0,
     output [6:0] HEX1,
+    output [6:0] HEX2,
+    output [6:0] HEX3,
+    output [6:0] HEX4,
+    output [6:0] HEX5,
     output [17:0] LEDR,
 
 	output			VGA_CLK,   				//	VGA Clock
@@ -36,9 +40,9 @@ module supermain(
     assign frame_reset = frame_counter == 20'b0;
 
     reg [4:0] xpos;
-    initial xpos = 5'b01000;
+    initial xpos = 5'b00000;
     reg [4:0] ypos;
-    initial ypos = 5'b00000;
+    initial ypos = 5'b01000;
     reg [1:0] map;
     initial map = 2'b00;
 
@@ -82,7 +86,7 @@ module supermain(
         end
     end
 
-    reg [31:0] timer;
+    wire [31:0] timer;
     reg timer_enable;
     initial timer_enable = 1'b0;
     Timer_8seconds t8(
@@ -94,7 +98,36 @@ module supermain(
     wire timeout;
     assign timeout = timer == 31'b0;
 
+    // To handle scores
+
+    wire [31:0] score_counter;
+    reg [7:0] score;
+    initial score = 8'b0;
+    Timer_1seconds t1(
+        .clk(CLOCK_50),
+        .counter(score_counter)
+    );
+
+    always @ (CLOCK_50)
+    begin
+        if (score_counter == 32'd0)
+        begin
+            score = score + 1'b1;
+        end
+    end
     
+   hex_decoder hd4(
+        .bin(score[3:0]),
+        .hex(HEX4)
+    );
+
+    hex_decoder hd5(
+        .bin(score[7:4]),
+        .hex(HEX5)
+    );
+
+
+
     hex_decoder hd0(
         .bin(ypos[3:0]),
         .hex(HEX0)
@@ -278,7 +311,6 @@ endmodule
 
 module Timer_1seconds(
 	input clk,
-    input enable,
 	output reg [31:0] counter
 );
 
@@ -287,9 +319,10 @@ module Timer_1seconds(
 	begin
 		if (counter == 32'b0)
 			counter <= 32'd100000000;		// 8 seconds
-		else if (enable == 1'b1)
+		else
 			counter <= counter - 1'b1;
 	end
 
 
 endmodule
+
