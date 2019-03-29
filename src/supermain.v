@@ -108,7 +108,7 @@ module supermain(
         .counter(score_counter)
     );
 
-    always @ (score_counter)
+    always @ (posedge score_counter)
     begin
         if (score_counter == 32'b0)
         begin
@@ -198,7 +198,7 @@ module supermain(
 	// Create an Instance of a VGA controller - there can be only one!
 	// Define the number of colours as well as the initial background
 	// image file (.MIF) for the controller.
-	vga_adapter VGA(tile_drawer
+	vga_adapter VGA(
 			.resetn(resetn),
 			.clock(CLOCK_50),
 			.colour(colour),
