@@ -153,10 +153,11 @@ module supermain(
 	
 
     wire [11:0] rom_address;
-	wire [7:0] rom_data;
+	wire [23:0] rom_data;
 	wire drawtile;
+    wire drawmap;
 
-	rom4096x8 myrom(
+	rom4096x24 myrom(
 		.address(rom_address),
 		.clock(CLOCK_50),
 		.q(rom_data)
@@ -164,7 +165,20 @@ module supermain(
 
     wire [23:0] colourtest;
 
-	tiledrawer gpu(
+    map_drawer gpu(
+        .clk(CLOCK_50),
+        .tile_address_volitile(12'b000000000000),
+        .rom_request_data(rom_data),
+        .rom_request_address(rom_address),
+        .vga_draw_enable_bus(writeEn),
+        .vga_x_out_bus(x),
+        .vga_y_out_bus(y),
+        .vga_RGB_out_bus(colour),
+        .draw(frame_reset),
+        .done(drawmap)
+        );
+
+	tile_drawer gpu(
 		.clk(CLOCK_50),
 		.tile_address_volitile(12'b000000000000),
 		.x_pos_volitile(x_pixel),
@@ -182,7 +196,7 @@ module supermain(
 
 	screen_refresh blackscreen(
 		.clk(CLOCK_50),
-		.enable(frame_reset),
+		.enable(drawmap),
 		.vga_x_out_bus(x),
 		.vga_y_out_bus(y),
 		.vga_RGB_out_bus(colour),

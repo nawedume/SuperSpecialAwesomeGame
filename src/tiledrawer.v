@@ -1,4 +1,4 @@
-module tiledrawer(
+module tile_drawer(
 	input clk,
 	input [11:0] tile_address_volitile,
 	input [7:0] x_pos_volitile,
@@ -12,7 +12,8 @@ module tiledrawer(
 	output [23:0] vga_RGB_out_bus,
 	output [7:0] statetestout,
 	output [23:0] rgbtestout,
-	output reg active
+	output reg active,
+	output reg done
 	);
 	assign statetestout = current_state;
 	assign rgbtestout = {R_out_buffer, G_out_buffer, B_out_buffer};
@@ -59,7 +60,7 @@ module tiledrawer(
 	begin: state_table 
 			case (current_state)
 				S_INACTIVE: next_state = draw ? S_LOAD_INIT_VALUES : S_INACTIVE; // check ? load if true : load if false
-				S_LOAD_INIT_VALUES: next_state = S_REQUEST_R;
+				S_LOAD_INIT_VALUES: next_state = S_REQUEST_RGB;
 				S_REQUEST_R: next_state = S_SAVE_R;
 				S_SAVE_R: next_state = S_POSTSAVE_R;
 				S_POSTSAVE_R: next_state = S_REQUEST_G;
@@ -69,8 +70,11 @@ module tiledrawer(
 				S_REQUEST_B: next_state = S_SAVE_B;
 				S_SAVE_B: next_state = S_POSTSAVE_B;
 				S_POSTSAVE_B: next_state = S_DRAW;
+				S_REQUEST_RGB: next_state = S_SAVE_RGB;
+				S_SAVE_RGB: next_state = S_POSTSAVE_DRAW;
 				S_DRAW: next_state = S_CHECK_FINISHED_TILE; 
-				S_CHECK_FINISHED_TILE: next_state = active ? S_REQUEST_R : S_INACTIVE;
+				S_CHECK_FINISHED_TILE: next_state = active ? S_REQUEST_RGB : S_DONE;
+				S_DONE: next_state = S_INACTIVE;
 			default: next_state = S_INACTIVE;
 		endcase
 	end 
@@ -85,6 +89,7 @@ module tiledrawer(
 		draw_pixel = 1'b0;
 		reset_xy_load_tile_address = 1'b0;
 		rom_request_address_buffer = 12'b000000000000;
+		done = 1'b0;
 		case (current_state)
 			// at start of every tile, load the relative x/y and tile address, then reset the internal counters
 			S_LOAD_INIT_VALUES: begin
@@ -166,6 +171,12 @@ module tiledrawer(
 				end
 			end
 
+			S_DONE: begin
+				done = 1'b1;
+				draw_pixel = 1'b0;
+				active = 1'b0;
+			end
+
 			default: begin
 				rom_request_address_buffer = 12'b000000000000;
 				reset_xy_load_tile_address = 1'b0;
@@ -175,6 +186,7 @@ module tiledrawer(
 				load_G = 1'b0;
 				load_B = 1'b0;
 				active = 1'b0;
+				done = 1'b0;
 				end
 		endcase
 	end
