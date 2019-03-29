@@ -66,15 +66,19 @@ module supermain(
             xpos <=  5'b01000;
             ypos <=  5'b00000;
         end
-        if (map == 2'b01 && xpos == 5'd6 && ypos == 5'd8)
+        else if (map == 2'b01 && xpos == 5'd6 && ypos == 5'd8)
         begin
             map <= map + 1'b1;
             timer_enable <= 1'b1;
         end
-        if (map == 2'b10 && timeout)
+        else if (map == 2'b10 && timeout)
         begin
             map <= 2'b01;
             timer_enable <= 1'b0;
+        end
+        else if (map == 2'b10 && xpos == 5'd13 && ypos == 5'd14)
+        begin
+            map <= 2'b11;
         end
     end
 
@@ -265,6 +269,24 @@ module Timer_8seconds(
 	begin
 		if (counter == 32'b0)
 			counter <= 32'd400000000;		// 8 seconds
+		else if (enable == 1'b1)
+			counter <= counter - 1'b1;
+	end
+
+
+endmodule
+
+module Timer_1seconds(
+	input clk,
+    input enable,
+	output reg [31:0] counter
+);
+
+
+	always @ (posedge clk)
+	begin
+		if (counter == 32'b0)
+			counter <= 32'd100000000;		// 8 seconds
 		else if (enable == 1'b1)
 			counter <= counter - 1'b1;
 	end
