@@ -4,8 +4,13 @@ import sys
 def convert(images):
     counter = 0
 
+<<<<<<< HEAD
     print('''DEPTH = 65536; 
 WIDTH = 24;
+=======
+    print('''DEPTH = 4096; 
+WIDTH = 8;
+>>>>>>> parent of 8a3fb13... Merge branch 'testmap'
 ADDRESS_RADIX = HEX;
 DATA_RADIX = HEX;
 
@@ -15,8 +20,9 @@ CONTENT BEGIN
     for image_array in images:
         for row in image_array:
             for pixel in row:
-                print("     %03X : %02X%02X%02X;" % (counter, pixel[0], pixel[1], pixel[2]))
-                counter += 1
+                for color in pixel:
+                    print("     %03X : %02X;" % (counter, color))
+                    counter += 1
 
     print("     [%03X..FFFF] : 000000;" % counter)
     print('''END;''')

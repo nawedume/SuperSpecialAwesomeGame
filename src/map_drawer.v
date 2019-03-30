@@ -91,7 +91,7 @@ module map_drawer(
 			end
 
 			S_REQUEST_RGB: begin
-				rom_address = tile_address;
+				rom_request_address_buffer = tile_address;
 			end
 
 			S_SAVE_RGB: begin
@@ -151,7 +151,7 @@ module map_drawer(
 
 			// once all values for the pixel are loaded, draw the pixel
 			S_DRAW: begin
-				if(current_x == 8'b10100000) begin
+				if(current_x == 8'b10011111) begin
 					draw_pixel = 2'b10;
 				end 
 				else begin

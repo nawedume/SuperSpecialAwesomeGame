@@ -1,4 +1,3 @@
-
 module collision_detector(
     input [4:0] current_x_pos,
     input [4:0] current_y_pos,

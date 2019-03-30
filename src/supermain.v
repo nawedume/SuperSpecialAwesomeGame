@@ -5,10 +5,6 @@ module supermain(
     input [3:0] KEY,
     output [6:0] HEX0,
     output [6:0] HEX1,
-    output [6:0] HEX2,
-    output [6:0] HEX3,
-    output [6:0] HEX4,
-    output [6:0] HEX5,
     output [17:0] LEDR,
 
 	output			VGA_CLK,   				//	VGA Clock
@@ -53,7 +49,7 @@ module supermain(
         .current_x_pos(ypos),
         .current_y_pos(xpos),
         .move(move_out),
-        .map(map),
+        .map(2'b00),
         .clk(CLOCK_50),
         .new_x_pos(new_ypos),
         .new_y_pos(new_xpos)
@@ -84,7 +80,7 @@ module supermain(
         begin
             map <= 2'b11;
         end
-    end
+end
 
     wire [31:0] timer;
     reg timer_enable;
@@ -237,9 +233,9 @@ module supermain(
 
     always @ (posedge CLOCK_50) begin
         case (map)
-            2'b00: map_address <= 16'h000100;
-            2'b01: map_address <= 16'h004B00;
-            2'b10: map_address <= 16'h009600;
+            2'b00: map_address <= 16'h0000E2;
+            2'b01: map_address <= 16'h004B41;
+            2'b10: map_address <= 16'h009640;
         endcase
     end
 
@@ -337,4 +333,3 @@ module Timer_1seconds(
 
 
 endmodule
-
